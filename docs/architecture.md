@@ -40,7 +40,7 @@ Ten rules that settle arguments before they start. Each traces to a research fin
 | 1 | Single binary vs. client/server | **Client/server from day one.** `bridled` daemon + Bridle Protocol; the TUI is client #1. | Only pattern that adds desktop/IDE/channels without a rewrite. The daemon can still ship inside one binary that self-spawns (`bridle` launches `bridled` if absent) so the UX feels like a single tool. |
 | 2 | Multi-agent depth | **Subagents with depth caps in v1; durable workflow graphs in v2.** | Delegation + isolation covers 90% of real value (parallel exploration, permission scoping). LangGraph-style durable orchestration is real but a separate milestone (Phase 5). |
 | 3 | Multi-surface ambition | **Full reach, phased:** TUI → headless/SDK → IDE via ACP → channel gateway (Slack/Discord/Telegram/WhatsApp) → desktop/web console. | The architecture (decision 1) makes each surface a thin adapter. Channels are what made OpenClaw and Hermes categorically different products. |
-| 4 | Sandboxing default | **Pluggable Runtime interface from day one.** Host runtime for interactive use; **full-auto mode refuses to run on the host runtime** — unattended work requires container/remote runtime unless explicitly overridden. Secret scrubbing on every subprocess in every runtime. | Matches trust to supervision level. The refusal rule is our improvement over everyone surveyed: nobody else couples autonomy level to isolation level mechanically. |
+| 4 | Sandboxing default | **Pluggable Runtime interface from day one — host/native is a first-class target for every mode, including full-auto.** Bridle runs natively on the machine with no container required; the sandbox is an *option you can reach for*, not a floor you must clear. Sandbox (container/remote) is the *recommended* default for **unattended** runs, and choosing full-auto-on-host surfaces a one-time explainer + `runtime: host` opt-in — but it is fully supported, never refused. Secret scrubbing, checkpointing, budgets, and network policy apply in **every** runtime, so host runs are still guarded. | Matches guardrails to supervision level without ever taking native execution away. Many users run on a laptop or a trusted server and don't want Docker in the loop; forcing a sandbox would make the tool unusable for them. Safety comes from the always-on rails (§6, §16), not from denying the host. |
 | 5 | Marketplace & trust | **Build the Hub, but no unsigned artifact ever installs.** Signing, trust tiers, static scanning, and sandboxed skill execution ship in the Hub's v1 — the Hub launches later than skills themselves (Phase 4), never before its trust infra. | ClawHavoc demonstrated the cost of "later." |
 | 6 | License & governance | **Apache-2.0**, contributor DCO, governance charter written for eventual foundation donation (the direction MCP, Goose, and OpenClaw all went). | Patent grant matters for enterprise adoption; foundation-readiness is cheap now and expensive to retrofit. |
 
@@ -65,15 +65,16 @@ Five layers, strictly separated — the cleanest idea in OpenClaw's design, kept
 │  MCP client + MCP server     Subagent manager    Checkpointer        │
 └──────┬───────────────────────────────────┬───────────────────────────┘
        │  Runtime interface                │  Provider interface
-┌──────┴──────────────────┐        ┌───────┴──────────────────────────┐
-│  host │ container (OCI) │        │ anthropic │ openai │ openrouter  │
-│  remote (E2B/Daytona…)  │        │ google │ bedrock │ ollama/local… │
-└─────────────────────────┘        └──────────────────────────────────┘
+┌──────────────────────────────┐   ┌───────┴──────────────────────────┐
+│  host / native  (default)    │   │ anthropic │ openai │ openrouter  │
+│  container (Docker/Podman)    │   │ google │ bedrock │ ollama/local… │
+│  remote (E2B/Daytona/Modal…)  │   └──────────────────────────────────┘
+└──────────────────────────────┘
 ```
 
 - **Surfaces** contain zero agent logic — they render events and forward input.
 - **`bridled`** owns sessions, the loop, permissions, memory, extensibility. One daemon serves many concurrent sessions and many connected clients.
-- **Runtimes** answer "where do tools execute"; **Providers** answer "which model thinks." Both are swappable interfaces, never reachable except through the core.
+- **Runtimes** answer "where do tools execute"; **Providers** answer "which model thinks." Both are swappable interfaces, never reachable except through the core. **The default runtime is the host itself** — Bridle runs natively with nothing to containerize; Docker/Podman and remote sandboxes are opt-in isolation you reach for when you want it (§10).
 - `bridled` is also **an MCP server itself**: any external MCP host (Claude Desktop, an editor) can mount a Bridle agent as a tool — the harness composes into other harnesses.
 
 ---
@@ -138,12 +139,14 @@ Three levers (the convergent design across Claude Code, Cline, Continue), plus t
 
 **Modes** — the posture dial:
 
-| Mode | Reads | Edits | Shell | Runtime requirement |
+| Mode | Reads | Edits | Shell | Runtime |
 |---|---|---|---|---|
-| `plan` | ✓ | ✗ (proposes) | ✗ | any — model *cannot* self-transition out (Cline's rule) |
-| `review` (default) | ✓ | ask, diff-first | ask | any |
-| `auto-edit` | ✓ | ✓ | ask | any |
-| `full-auto` | ✓ | ✓ | ✓ | **container/remote runtime required**; host needs explicit `--i-know-what-im-doing` override |
+| `plan` | ✓ | ✗ (proposes) | ✗ | any (host or sandbox) — model *cannot* self-transition out (Cline's rule) |
+| `review` (default) | ✓ | ask, diff-first | ask | any (host or sandbox) |
+| `auto-edit` | ✓ | ✓ | ask | any (host or sandbox) |
+| `full-auto` | ✓ | ✓ | ✓ | any — **host fully supported** (`runtime: host` + one-time explainer); sandbox *recommended* for unattended runs, not required |
+
+Host and sandbox are peers: the same session, tools, and permission rules behave identically whichever runtime backs them. The mode dial governs *how much the agent may do*; the runtime governs *where it does it* — and you can pair any mode with any runtime, including running fully autonomous on bare metal.
 
 **Rules** — pattern lists evaluated `deny → ask → allow`, first match wins, **merged (never overridden) across config scopes** so org policy and project customization coexist:
 
@@ -236,11 +239,11 @@ interface Runtime {
 }
 ```
 
-- **HostRuntime** — direct execution; interactive default.
-- **ContainerRuntime** — OCI/Docker, workspace bind-mounted; required for `full-auto`; the action-execution-server pattern (OpenHands) with the language toolchain, LSP servers, and a headless browser inside.
+- **HostRuntime** — direct native execution on the user's machine. **Fully supported for every mode**, interactive *and* full-auto; no container, no daemon-in-a-daemon, nothing to install beyond Bridle itself. This is the default and the path most users will actually run: a laptop, a dev box, a trusted VPS. Tools execute as the user, in the real working directory, with the real toolchain already installed — zero setup tax. All the always-on rails below still apply, so "native" does not mean "unguarded."
+- **ContainerRuntime** — OCI (Docker **or** Podman), workspace bind-mounted; the action-execution-server pattern (OpenHands) with the language toolchain, LSP servers, and a headless browser inside. *Recommended* for unattended/full-auto and for running less-trusted code, but never mandatory — reach for it when you want isolation, skip it when you don't.
 - **RemoteRuntime** — adapter interface for E2B (microVMs), Daytona, Modal; also how cloud/CI execution works.
 
-**Every runtime, always**: environment scrubbing on spawn — variables matching `KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL|AUTH` are stripped unless explicitly passed through (Hermes); per-session network policy; output caps.
+**Every runtime, always — including host**: environment scrubbing on spawn (variables matching `KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL|AUTH` are stripped unless explicitly passed through — Hermes); per-session network policy; output/timeout caps; shadow-git checkpointing (§6) so any mutation is revertable; and per-session token/dollar/wall-clock budgets. These rails are what make host execution safe enough to be the default — the guardrails travel with the session, not with the container.
 
 ---
 
@@ -317,7 +320,7 @@ Project layout: `.bridle/{config.json5, local.json5, agents/, skills/, hooks/, B
 | Malicious marketplace artifacts | Signing + tiers + scanning + sandboxed scripts + quarantine (§9); nothing unsigned installs |
 | Exposed control plane | Token auth on every endpoint incl. localhost; origin allowlists; capability-scoped clients (§14) |
 | Secret exfiltration via subprocess | Env scrubbing on every spawn, every runtime (§10); network policy per session |
-| Runaway autonomy | Mode/runtime coupling (full-auto ⇒ sandbox); budgets; iteration caps; spawn-depth caps; interrupt is always live |
+| Runaway autonomy | Always-on rails that travel with the session regardless of runtime: hard token/dollar/wall-clock budgets, iteration caps, spawn-depth caps, live interrupt, and revertable checkpoints. Sandbox is *recommended* for unattended full-auto but never required — host is fully supported, guarded by the same rails |
 | Destructive file/shell actions | deny-first rule evaluation; lint-on-accept edits; shadow-git checkpoint after every mutation; `bridle rewind` |
 | A compromised plugin | Capability-scoped worker isolation (§8.4) — a plugin has only its declared grants |
 
@@ -356,10 +359,10 @@ Phases named for gaits — a bridle's progression. Each has a hard exit criterio
 
 | Phase | Name | Scope | Exit criterion |
 |---|---|---|---|
-| 0 | **Foundation** (~4 wks) | Protocol schema; daemon skeleton; event log; config system; provider interface (Anthropic/OpenAI/OpenRouter/Ollama); minimal loop with `fs.*`, `shell.run`, `search.grep`; headless `-p` | An unattended headless run completes a multi-step task end-to-end, fully replayable from its event log |
+| 0 | **Foundation** (~4 wks) | Protocol schema; daemon skeleton; event log; config system; provider interface (Anthropic/OpenAI/OpenRouter/Ollama); **HostRuntime (native execution)**; minimal loop with `fs.*`, `shell.run`, `search.grep`; headless `-p` | An unattended headless run completes a multi-step task natively (no container) end-to-end, fully replayable from its event log |
 | 1 | **Walk** (~6 wks) | TUI v1; permission engine (modes/rules/categories); shadow-git checkpoints + rewind; ACI edit tool with lint-on-accept; windowed reads; repo map; LSP diagnostics | A developer uses Bridle daily on Bridle's own repo ("harness-hosted development") with `review` mode and rewind |
 | 2 | **Trot** (~6 wks) | Memory subsystem (core/notes/recall index); tiered compaction; instruction files; skills with progressive disclosure + triggers; hooks | A 4-hour session stays coherent post-compaction; agent-authored skill lands via approval gate |
-| 3 | **Canter** (~6 wks) | MCP client + server mode; subagents (built-ins + custom, depth caps); `code.exec` programmatic tool calling; ContainerRuntime; full-auto/runtime coupling; budgets | Full-auto in a container fixes a real bug from a one-line prompt within budget, no human touches |
+| 3 | **Canter** (~6 wks) | MCP client + server mode; subagents (built-ins + custom, depth caps); `code.exec` programmatic tool calling; ContainerRuntime (Docker/Podman) as an *optional* isolation target; full-auto mode; budgets | Full-auto fixes a real bug from a one-line prompt within budget with no human touches — verified running **both** natively on the host and in a container |
 | 4 | **Gallop** (~8 wks) | Bridle Hub with complete trust pipeline (signing/tiers/scanning/quarantine); blocks; ACP IDE support; first channel adapters (Slack, Telegram); SDKs stable | Signed community skill published, installed, trigger-loaded; same session driven from terminal and Slack |
 | 5 | **Steeplechase** | Workflows (durable graphs); desktop/web console; RemoteRuntime adapters (E2B/Daytona); replay-based regression benchmarks; multi-agent teams | A workflow survives a daemon restart mid-run and completes |
 
