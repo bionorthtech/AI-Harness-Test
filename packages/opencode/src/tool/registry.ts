@@ -13,6 +13,7 @@ import { TaskTool } from "./task"
 import { Database } from "@opencode-ai/core/database/database"
 import { TodoWriteTool } from "./todo"
 import { MemoryTool } from "./memory"
+import { SessionSearchTool } from "./session-search"
 import { WebFetchTool } from "./webfetch"
 import { WriteTool } from "./write"
 import { InvalidTool } from "./invalid"
@@ -96,6 +97,7 @@ const layer = Layer.effect(
     const question = yield* QuestionTool
     const todo = yield* TodoWriteTool
     const memory = yield* MemoryTool
+    const sessionsearch = yield* SessionSearchTool
     const lsptool = yield* LspTool
     const plan = yield* PlanExitTool
     const webfetch = yield* WebFetchTool
@@ -209,6 +211,7 @@ const layer = Layer.effect(
           fetch: Tool.init(webfetch),
           todo: Tool.init(todo),
           memory: Tool.init(memory),
+          sessionsearch: Tool.init(sessionsearch),
           search: Tool.init(websearch),
           skill: Tool.init(skilltool),
           patch: Tool.init(patchtool),
@@ -232,6 +235,7 @@ const layer = Layer.effect(
             tool.fetch,
             tool.todo,
             tool.memory,
+            tool.sessionsearch,
             tool.search,
             tool.skill,
             tool.patch,

@@ -1,0 +1,5 @@
+Search past conversations in this project for messages matching a query. Use this when the user refers to something discussed before ("like we talked about last week", "the approach we decided on") or when you need context from an earlier session.
+
+Returns raw matching message snippets grouped by session (newest first) — actual past text, not summaries. The current session is excluded.
+
+This is explicit recall: prefer your injected core memory for standing facts, and use this tool to look up specifics on demand. Keep queries to a distinctive word or short phrase; overly generic queries return noise.
