@@ -1,0 +1,20 @@
+Bridle
+======
+
+Bridle is built on a duplicated copy of OpenCode, used under the terms of
+the MIT License. The original OpenCode copyright and license notice are
+retained in the LICENSE file at the root of this repository.
+
+  OpenCode — https://github.com/sst/opencode
+  Copyright (c) 2025 opencode
+  Licensed under the MIT License (see LICENSE)
+
+Bridle's design system, themes (.opencode/themes/bridle.json), branding,
+documentation under docs/, and all subsequent modifications are the work
+of the Bridle project. New Bridle-authored code is intended to be
+distributed under the Apache License 2.0; see docs/base-evaluation.md §4
+for the license strategy. Where a file originates from OpenCode, its
+upstream MIT terms continue to apply.
+
+This project is an independent duplication, not a fork, and is not
+affiliated with or endorsed by the OpenCode project or its maintainers.
