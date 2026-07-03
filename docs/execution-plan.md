@@ -20,9 +20,9 @@ Goal: it builds, runs, and *looks* like Bridle; nothing renamed structurally yet
 
 - ✅ **A1. Duplicate the base.** OpenCode imported (MIT), history dropped, marketing bloat excluded.
 - ✅ **A2. Bridle theme.** `.opencode/themes/bridle.json` (graphite/steel, dark+light) validated against the built-in schema; set default in `.opencode/tui.json`.
-- ⬜ **A3. Green baseline.** `bun install`; `bun run dev` launches the TUI with the Bridle theme; `bun turbo typecheck` passes. Record any breakage. *(Exit: a screenshot of the Bridle-themed TUI running.)*
+- ✅ **A5. Prune to harness-only.** Cut from 31 packages to the 14 in the dependency closure of the CLI+TUI (dropped `app`, `cli`(lildax), `client`, `console/*`, `desktop`, `enterprise`, `function`, `httpapi-codegen`, `sdk-next`, `session-ui`, `slack`, `stats/*`, `storybook`, `web`, `containers`, `docs`(their site), `identity`(their logos)). Scrubbed root: SST/infra, release machinery, GitHub app/action, VS Code sdk, husky, nix, upstream org files. Repo 84M → 41M; three orphaned dependency patches removed; workspaces/scripts/turbo reconciled.
+- ✅ **A3. Green baseline.** After the prune, `bun install` succeeds (1,963 packages — the prune removed the git-hosted dep that blocked it), `bun turbo typecheck` passes **13/13**, and the CLI boots with its full command surface (`tui`, `serve`, `run`, `mcp`, `acp`, `providers`, `agents`, `models`). *(Remaining: visual confirmation of the Bridle-themed TUI in a real terminal.)*
 - ⬜ **A4. Wordmark & mascot.** Replace the OpenCode logo/wordmark in the TUI header and welcome box with the Bridle wordmark and the bit-ring `⦿`; replace the spinner/mascot glyph. Enforce the dot-bullet rule (`●`, not the emoji-record codepoint) from the design system §4.1.
-- ⬜ **A5. Prune non-harness packages.** Remove or quarantine what Bridle won't ship: `console`, `stats`, `slack`, `storybook`, `desktop`/`app`/`web` marketing, `enterprise`. Keep `opencode`(core CLI/server), `tui`, `core`, `llm`, `client`, `sdk`, `plugin`, `protocol`, `schema`, `mcp`-related. *(Exit: `bun run dev` still works with the slimmed tree.)*
 
 ## Phase B — Rename to Bridle *(make it ours structurally)*
 
