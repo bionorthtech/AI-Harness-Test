@@ -112,6 +112,29 @@ function loaded(filepath: string): SessionV1.WithParts[] {
 }
 
 describe("Instruction.resolve", () => {
+  it.live("BRIDLE.md wins over AGENTS.md at the same level", () =>
+    withFiles(
+      { "BRIDLE.md": "# Bridle Instructions", "AGENTS.md": "# Agents Instructions", "src/file.ts": "const x = 1" },
+      (dir) =>
+        Effect.gen(function* () {
+          const svc = yield* Instruction.Service
+          const system = yield* svc.systemPaths()
+          expect(system.has(path.join(dir, "BRIDLE.md"))).toBe(true)
+          expect(system.has(path.join(dir, "AGENTS.md"))).toBe(false)
+        }),
+    ),
+  )
+
+  it.live("AGENTS.md still resolves when no BRIDLE.md exists", () =>
+    withFiles({ "AGENTS.md": "# Agents Instructions", "src/file.ts": "const x = 1" }, (dir) =>
+      Effect.gen(function* () {
+        const svc = yield* Instruction.Service
+        const system = yield* svc.systemPaths()
+        expect(system.has(path.join(dir, "AGENTS.md"))).toBe(true)
+      }),
+    ),
+  )
+
   it.live("returns empty when AGENTS.md is at project root (already in systemPaths)", () =>
     withFiles({ "AGENTS.md": "# Root Instructions", "src/file.ts": "const x = 1" }, (dir) =>
       Effect.gen(function* () {
