@@ -122,6 +122,30 @@ export const TaskTool = Tool.define(
         ? yield* sessions.get(SessionID.make(params.task_id)).pipe(Effect.catchCause(() => Effect.succeed(undefined)))
         : undefined
       const parent = yield* sessions.get(ctx.sessionID)
+
+      // Spawn-depth cap: children cannot delegate unless the limit is raised.
+      // Depth 0 = top-level session; a session with N ancestors is at depth N.
+      const maxSpawnDepth = Math.max(1, Math.floor(cfg.subagents?.max_spawn_depth ?? 1))
+      let depth = 0
+      {
+        let cursor = parent
+        while (cursor.parentID && depth < 16) {
+          depth += 1
+          const up = yield* sessions.get(cursor.parentID).pipe(Effect.catchCause(() => Effect.succeed(undefined)))
+          if (!up) break
+          cursor = up
+        }
+      }
+      if (depth >= maxSpawnDepth) {
+        return yield* Effect.fail(
+          new Error(
+            `spawn-depth cap: this session is already ${depth} level${depth === 1 ? "" : "s"} deep and ` +
+              `max_spawn_depth is ${maxSpawnDepth}. Do the work directly instead of delegating; ` +
+              `orchestrator patterns can raise subagents.max_spawn_depth in config.`,
+          ),
+        )
+      }
+
       const childPermission = deriveSubagentSessionPermission({
         parentSessionPermission: parent.permission ?? [],
         subagent: next,

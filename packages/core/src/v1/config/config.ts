@@ -84,6 +84,14 @@ export const Info = Schema.Struct({
   username: Schema.optional(Schema.String).annotate({
     description: "Custom username to display in conversations instead of system username",
   }),
+  subagents: Schema.optional(
+    Schema.Struct({
+      max_spawn_depth: Schema.optional(Schema.Finite).annotate({
+        description:
+          "How deep subagents may spawn further subagents. 1 (default) = only the top-level session can spawn; children cannot delegate. Raise deliberately for orchestrator patterns.",
+      }),
+    }),
+  ).annotate({ description: "Subagent spawning limits." }),
   budget: Schema.optional(
     Schema.Struct({
       max_cost: Schema.optional(Schema.Finite).annotate({
