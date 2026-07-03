@@ -135,6 +135,16 @@ A minimal, geometric **bit-and-strap** glyph — two short vertical leather stra
 
 The mascot `⦿` is the only glyph swap that matters: wherever Claude Code shows `✻`, Bridle shows the bit-ring. Everything else is a colour-token substitution over a layout users already trust.
 
+#### 4.1.1 Terminal theming — inherit by default, paint on request
+
+The `#0B0B0D` ground in the mockups is the **`bridle-dark` theme**, not a background Bridle stamps over the user's terminal. A TUI doesn't own its window the way a web page does: the colour behind the text is whatever the user's **terminal emulator theme** sets (iTerm, Alacritty, Ghostty, Kitty, Windows Terminal, tmux…). Like Claude Code and OpenCode, Bridle **feels native first** — it does not hard-paint the full screen by default, so it blends into the theme the user already runs. Three layers make this coherent:
+
+1. **Auto-detect + match (default).** On launch, Bridle probes the terminal's real background (`OSC 11` query, falling back to `COLORFGBG`) to tell light from dark and selects `bridle-dark` or `bridle-light` so contrast is always right. It then *inherits* the user's background and paints only the element backgrounds that carry meaning — diff gutters, the selected row, the permission card's amber edge — plus the steel accent and framing glyphs.
+2. **Force a theme (opt-in).** `theme: "bridle-dark"` (or `bridle-light`, or a user theme) makes Bridle paint the exact designed ground everywhere, for people who want the screenshot look regardless of their terminal.
+3. **Truecolor with graceful fallback.** Steel and the semantics are emitted as 24-bit truecolor, so on a capable terminal they render exactly as designed over any background; on a 256- or 16-colour terminal they map to the nearest safe values, and the `●`/`⎿`/`❯` framing still reads with no colour at all.
+
+So: it looks like the mockup in a dark terminal (or when `bridle-dark` is forced), and it blends into the user's own theme otherwise — but the steel identity and the tool-output framing survive either way. Themes ship from the same token contract (§8) as `bridle-dark` / `bridle-light`, so a terminal theme and the web console's theme are literally the same values.
+
 ### 4.2 Buttons & controls
 
 Flat, square-ish (4px radius — machined, not pill-soft), mono labels. Primary = `steel` fill on dark text; secondary = `border-strong` outline, transparent fill; danger = `danger` outline that fills on hover. Focus is a 2px `steel` ring, always visible. No shadows on controls — depth comes from surface layering, not drop-shadows.
