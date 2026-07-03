@@ -20,6 +20,7 @@ import { Plugin } from "@/plugin"
 import { ChildProcess } from "effect/unstable/process"
 import { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner"
 import { ShellPrompt, type Parameters } from "./shell/prompt"
+import { scrubEnv } from "./shell/scrub"
 import { BashArity } from "@/permission/arity"
 
 export { Parameters } from "./shell/prompt"
@@ -419,8 +420,21 @@ export const ShellTool = Tool.define(
         { cwd, sessionID: ctx.sessionID, callID: ctx.callID },
         { env: {} },
       )
+      const runtime = (yield* config.get()).runtime
+      const { env: scrubbedEnv, scrubbed } = scrubEnv(process.env, {
+        enabled: runtime?.scrub_env ?? true,
+        pass: runtime?.pass_env ?? [],
+      })
+      if (scrubbed.length) {
+        yield* Effect.logDebug("scrubbed credential-like env vars from shell", {
+          count: scrubbed.length,
+          names: scrubbed,
+          hint: "allow specific vars via runtime.pass_env, or disable with runtime.scrub_env=false",
+        })
+      }
       return {
-        ...process.env,
+        ...scrubbedEnv,
+        // plugin-provided env is a deliberate pass-through and merges after scrubbing
         ...extra.env,
       }
     })

@@ -84,6 +84,17 @@ export const Info = Schema.Struct({
   username: Schema.optional(Schema.String).annotate({
     description: "Custom username to display in conversations instead of system username",
   }),
+  runtime: Schema.optional(
+    Schema.Struct({
+      scrub_env: Schema.optional(Schema.Boolean).annotate({
+        description:
+          "Strip credential-looking env vars (KEY/TOKEN/SECRET/PASSWORD/CREDENTIAL/AUTH) from spawned shells. Default true.",
+      }),
+      pass_env: Schema.optional(Schema.mutable(Schema.Array(Schema.String))).annotate({
+        description: "Env var names to pass through to spawned shells even when scrubbing is on (e.g. GITHUB_TOKEN).",
+      }),
+    }),
+  ).annotate({ description: "Execution-environment rails for spawned processes." }),
   subagents: Schema.optional(
     Schema.Struct({
       max_spawn_depth: Schema.optional(Schema.Finite).annotate({
