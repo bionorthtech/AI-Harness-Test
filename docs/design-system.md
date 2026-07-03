@@ -6,13 +6,13 @@
 
 ## 0. Design thesis
 
-A bridle is **worked leather and steel hardware** — something a craftsperson made to steer a powerful animal with precision and trust. That is the whole identity in one image:
+Bridle is a machined instrument: a **black-anodized body with steel hardware** — precise, matte, made to steer something powerful with trust. That is the whole identity in one image:
 
-- **Leather** is the ground: warm, dark, calm, matte. It's the surface everything sits on — a terminal you spend hours in shouldn't glare at you.
-- **Steel** is the signal: a single cool blue-grey, the color of a buckle and a bit against tan leather. It marks what's live, focused, or actionable, and it is *never* asked to also mean "success" or "danger."
+- **Graphite** is the ground: a true near-black, cool and calm and matte. It's the surface everything sits on — a terminal you live in should recede, not glow. Not brown, not slate; black.
+- **Steel** is the signal: a single cool blue-grey, the color of machined hardware against a black body. It marks what's live, focused, or actionable, and it is *never* asked to also mean "success" or "danger."
 - **Craft** is the execution: nothing decorative, everything functional, tight tolerances. Monospace carries the brand because this is an instrument, not an app.
 
-The look is **dark-first** (the terminal is home), **mono-forward** (the tool speaks in the terminal's own voice), and **warm-neutral** (leather, not slate). It deliberately avoids the two current AI-tool clichés — warm-cream-with-terracotta, and near-black-with-one-acid-pop — by pairing a *warm* dark ground with a *cool* accent, which almost nobody does.
+The look is **dark-first** (the terminal is home), **mono-forward** (the tool speaks in the terminal's own voice), and **neutral** (graphite, not slate, not brown). It deliberately avoids the two current AI-tool clichés — warm-cream-with-terracotta, and near-black-with-one-acid-pop — by grounding on a genuinely neutral near-black and spending its one color on a cool steel accent. The dark theme is modelled on the terminals people already trust: Claude Code and OpenCode both sit on a near-black neutral, never a warm ground.
 
 ### 0.1 Anti-slop rules (non-negotiable)
 
@@ -39,32 +39,32 @@ Warm leather neutrals, one cool steel brand accent, and a semantic set kept stri
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg` | `#1A1512` | App/terminal ground — near-black warm brown |
-| `surface` | `#221C18` | Panels, cards, the TUI transcript area |
-| `surface-raised` | `#2C2521` | Popovers, permission prompts, active input |
-| `border` | `#3A322B` | Hairlines, dividers |
-| `border-strong` | `#4C4239` | Emphasized edges, focus containers |
-| `text` | `#ECE3D5` | Primary text — parchment, not pure white |
-| `text-secondary` | `#B2A692` | Secondary/labels |
-| `text-faint` | `#7C7060` | Metadata, timestamps, hints |
+| `bg` | `#0B0B0D` | App/terminal ground — true near-black, faintly cool |
+| `surface` | `#141417` | Panels, cards, the TUI transcript area |
+| `surface-raised` | `#1C1C20` | Popovers, permission prompts, active input |
+| `border` | `#292930` | Hairlines, dividers |
+| `border-strong` | `#3A3A43` | Emphasized edges, focus containers |
+| `text` | `#E8E8EC` | Primary text — near-white, neutral |
+| `text-secondary` | `#A4A4AD` | Secondary/labels |
+| `text-faint` | `#6B6B74` | Metadata, timestamps, hints |
 | **`steel`** | **`#6BA0CE`** | **Brand accent** — links, focus ring, active nav, cursor, the mark |
-| `steel-strong` | `#8CB8DC` | Hover/brighter accent |
-| `steel-soft` | `#25333F` | Accent background tint (selected row, active pill) |
+| `steel-strong` | `#8FBBE0` | Hover/brighter accent |
+| `steel-soft` | `#17222D` | Accent background tint (selected row, active pill) |
 
 ### 1.3 Light theme (docs, console, day mode)
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg` | `#F4EEE3` | Parchment ground |
-| `surface` | `#FBF7EF` | Cards/panels |
+| `bg` | `#F3F3F5` | Neutral off-white ground |
+| `surface` | `#FAFAFC` | Cards/panels |
 | `surface-raised` | `#FFFFFF` | Raised elements |
-| `border` | `#E2D9C8` | Hairlines |
-| `border-strong` | `#CDC2AC` | Emphasized edges |
-| `text` | `#221C16` | Primary |
-| `text-secondary` | `#5B5145` | Secondary |
-| `text-faint` | `#8A7D6B` | Metadata |
-| **`steel`** | **`#356291`** | Brand accent (darkened for AA on light) |
-| `steel-soft` | `#DDE7F0` | Accent tint |
+| `border` | `#E3E3E8` | Hairlines |
+| `border-strong` | `#CDCDD5` | Emphasized edges |
+| `text` | `#17171B` | Primary |
+| `text-secondary` | `#55555E` | Secondary |
+| `text-faint` | `#83838D` | Metadata |
+| **`steel`** | **`#33628F`** | Brand accent (darkened for AA on light) |
+| `steel-soft` | `#DCE7F1` | Accent tint |
 
 ### 1.4 Semantic colors (both themes, tuned per background)
 
@@ -75,7 +75,7 @@ Distinct in hue from steel and from each other; each has a foreground and a soft
 | `success` | `#7FA96C` (moss) | `#4E7A3C` | Passed, applied, allowed, merged |
 | `warning` | `#D9A441` (brass) | `#9A6E15` | Ask/confirm, caution, `full-auto` armed |
 | `danger` | `#C8583F` (oxblood) | `#A83B24` | Denied, destructive, failed, blocked |
-| `info` | `#6BA0CE` (steel) | `#356291` | Neutral notice (reuses brand — intentional) |
+| `info` | `#6BA0CE` (steel) | `#33628F` | Neutral notice (reuses brand — intentional) |
 
 ### 1.5 Trust tiers (the marketplace palette)
 
@@ -86,7 +86,7 @@ The one place color encodes a security fact. Used on skill/plugin/block badges e
 | `builtin` | steel | `#6BA0CE` | Ships with Bridle; fully trusted |
 | `official` | moss | `#7FA96C` | Maintained by the Bridle org |
 | `verified` | brass | `#D9A441` | Identity-checked publisher |
-| `community` | faint outline | `#7C7060` | Unverified — warned by default |
+| `community` | faint outline | `#6B6B74` | Unverified — warned by default |
 
 Tier color is always paired with a text label and (for `community`) an outline-not-fill treatment, so it reads without color vision.
 
@@ -121,23 +121,23 @@ A minimal, geometric **bit-and-strap** glyph — two short vertical leather stra
 
 ### 4.1 The TUI (flagship surface)
 
-**The TUI is Claude Code's proven layout, re-skinned — not a reinvention.** Claude Code's terminal anatomy is the most battle-tested agent TUI in the world; we adopt its structure wholesale and change only what makes it *ours*: the colour (steel-on-leather instead of orange-on-black) and the mascot (the Bridle bit-ring `⦿` instead of the sparkle `✻`). A Claude Code user should feel instantly at home; a Bridle user should never mistake a screenshot for anything else. Anatomy, top to bottom, mirroring Claude Code element-for-element:
+**The TUI is Claude Code's proven layout, re-skinned — not a reinvention.** Claude Code's terminal anatomy is the most battle-tested agent TUI in the world; we adopt its structure wholesale and change only what makes it *ours*: the colour (steel-on-graphite instead of orange-on-black) and the mascot (the Bridle bit-ring `⦿` instead of the sparkle `✻`). A Claude Code user should feel instantly at home; a Bridle user should never mistake a screenshot for anything else. Anatomy, top to bottom, mirroring Claude Code element-for-element:
 
 - **Welcome box** — a rounded 1px-bordered box on session start: `⦿ Welcome to bridle`, a `/help` hint line, and `cwd:` — exactly Claude Code's opening box, mascot and colour swapped.
-- **Transcript** — flush-left, no chrome. Assistant text and every tool call are marked with the `⏺` bullet (Claude Code's convention): the bullet is `text`-coloured for the assistant's own words and `steel` for a tool call. Tool calls read `⏺ Read(src/auth/refresh.ts)`; their results indent under a `⎿` turnstile in `faint` (`⎿  Read 84 lines`). Observations are visibly framed as tool output, never as a person's words (tenet #2).
-- **Inline diff** — under an `⏺ Update(file)` call, Claude Code's diff format: a `⎿ Updated … with N additions and M removals` summary, then numbered lines — deletions `12 -` on a `danger` low-tint with `danger` text, additions `12 +` on a `success` low-tint with `success` text. Line numbers in `faint`, `tabular-nums`.
-- **Permission prompt** — Claude Code's numbered box, restyled: a rounded card with a `warning` left-edge, the exact action in mono, then `❯ 1. Yes` / `2. Yes, and don't ask again for <pattern>` / `3. No, tell bridle what to do (esc)`. Keyboard-first; the `❯` cursor and selected number are `steel`.
-- **Thinking indicator** — Claude Code's animated-gerund line, themed to the tack room: `⦿ Cinching… (4s · ↑ 1.2k tokens · esc to interrupt)`. The mascot does a slow single-glyph pulse (reduced-motion: static), never a spinner storm.
-- **Input box** — the bottom rounded-border box with a `> ` prompt and a steel caret `▍`, identical in structure to Claude Code's composer.
-- **Mode hint line** — directly under the input, Claude Code's `⏵⏵` affordance: `⏵⏵ full-auto · host  (shift+tab to cycle)` on the left in the mode's colour (full-auto in `warning`), `? for shortcuts` on the right in `faint`.
+- **Transcript** — flush-left, no chrome. Assistant text and every tool call are marked with a solid **dot** `●` (a plain text glyph — never the `⏺` "record" codepoint, which many terminals and browsers colour-emoji into an orange disc): the dot is `text`-coloured for the assistant's own words and `steel` for a tool call. Tool calls read `● Read(src/auth/refresh.ts)`; their results indent under a `⎿` turnstile in `faint` (`⎿  Read 84 lines`). Observations are visibly framed as tool output, never as a person's words (tenet #2). **Rule: only ever use codepoints that render as monochrome text glyphs (`●`, `⎿`, `❯`, `▸`, `▍`, `⦿`); never one with an emoji presentation, and force text presentation (`U+FE0E`) if in doubt.**
+- **Inline diff** — under a `● Update(file)` call, Claude Code's diff format: a `⎿ Updated … with N additions and M removals` summary, then numbered lines — deletions `12 -` on a `danger` low-tint with `danger` text, additions `12 +` on a `success` low-tint with `success` text. Line numbers in `faint`, `tabular-nums`.
+- **Permission prompt** — Claude Code's numbered box, restyled: a rounded card with a `warning` left-edge, the exact action in mono, then `❯ 1. Yes` / `2. Yes, and don't ask again for <pattern>` / `3. No, tell bridle what to do (esc)`. Keyboard-first; the `❯` cursor and selected number are `steel`. While a prompt is pending, the status line shows Claude Code's **amber "awaiting permission" dot** (`●` in `warning`) so a paused agent is obvious at a glance.
+- **Thinking indicator** — Claude Code's animated-gerund line: `⦿ Cinching… (4s · ↑ 1.2k tokens · esc to interrupt)`. The mascot does a slow single-glyph pulse (reduced-motion: static), never a spinner storm.
+- **Input box** — the bottom rounded-border box with a `> ` prompt and a steel caret `▍`, identical in structure to Claude Code's composer. Placeholder advertises the input affordances Bridle borrows from OpenCode: **`@` for fuzzy file references, `!` to run a shell line, `/` for slash commands.**
+- **Mode hint line** — directly under the input, Claude Code's accept-edits affordance rendered with a text-safe `▸▸`: `▸▸ full-auto · host  (shift+tab to cycle)` on the left in the mode's colour (full-auto in `warning`), `? for shortcuts · esc to interrupt` on the right in `faint`.
 - **Subagent tree** — a live indented tree (Hermes) of spawned children and their current tool call, each a dim branch off the parent.
-- **Status footer** — mode · runtime · model · token/budget meter (a thin bar that is solid `steel` and flips to solid `warning` past 80% — it never gradient-fades) · elapsed. `tabular-nums` throughout.
+- **Status footer** — Claude Code's bottom strip, our fields: `runtime · model · ⎇ branch · context-meter NN% · $cost · elapsed`. The context meter is a thin bar, solid `steel`, that flips to solid `warning` past 80% used — it never gradient-fades. `tabular-nums` throughout, so nothing jitters as numbers tick.
 
 The mascot `⦿` is the only glyph swap that matters: wherever Claude Code shows `✻`, Bridle shows the bit-ring. Everything else is a colour-token substitution over a layout users already trust.
 
 ### 4.2 Buttons & controls
 
-Flat, square-ish (4px radius — leather-tooled, not pill-soft), mono labels. Primary = `steel` fill on dark text; secondary = `border-strong` outline, transparent fill; danger = `danger` outline that fills on hover. Focus is a 2px `steel` ring, always visible. No shadows on controls — depth comes from surface layering, not drop-shadows.
+Flat, square-ish (4px radius — machined, not pill-soft), mono labels. Primary = `steel` fill on dark text; secondary = `border-strong` outline, transparent fill; danger = `danger` outline that fills on hover. Focus is a 2px `steel` ring, always visible. No shadows on controls — depth comes from surface layering, not drop-shadows.
 
 ### 4.3 Mode dial
 
