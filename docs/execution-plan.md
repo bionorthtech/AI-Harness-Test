@@ -42,7 +42,7 @@ Goal: `opencode` → `bridle` everywhere it's safe, with the build green at each
 
 ## Phase D — Memory *(differentiator)*
 
-- ⬜ **D1. Instruction files.** `BRIDLE.md` hierarchy (replaces/augments `AGENTS.md`).
+- ✅ **D1. Instruction files.** `BRIDLE.md` heads both instruction lookups (global + project walk-up), winning over `AGENTS.md`/`CLAUDE.md`/`CONTEXT.md` under the existing first-match semantics while all remain as fallbacks. Covered by two new tests; suite 11/11.
 - ⬜ **D2. Capped self-editing core memory.** `CORE.md`/`USER.md` with hard caps that *reject* overflow writes (architecture §7).
 - ⬜ **D3. Recall index + tiered compaction.** sqlite-vec + FTS5 recall as an explicit tool; wire into OpenCode's `compaction` (microcompact → summarize → notes-assisted).
 
