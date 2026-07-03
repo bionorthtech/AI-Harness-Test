@@ -49,7 +49,7 @@ Goal: `opencode` → `bridle` everywhere it's safe, with the build green at each
 ## Phase E — Runtimes & subagents *(differentiator)*
 
 - ⬜ **E1. Runtime interface.** Host (default, native) + Container (Docker/Podman) + Remote (E2B/Daytona) behind one interface; secret scrubbing on every spawn (architecture §10). Host stays first-class for all modes.
-- ⬜ **E2. Subagents with depth caps.** Isolation + `max_spawn_depth`; built-in `explorer`/`planner`/`reviewer` (architecture §11).
+- 🟦 **E2. Subagents with depth caps.** Done: `subagents.max_spawn_depth` config (default 1) enforced in the task tool by walking the session's parentID chain — children cannot delegate unless the limit is deliberately raised; 2 tests (child refused, top-level passes). The base already provides isolation + built-in explore/general subagents. Remaining: `reviewer` built-in.
 
 ## Phase F — Trust-tiered marketplace *(the headline differentiator)*
 
