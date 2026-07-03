@@ -406,6 +406,10 @@ const layer = Layer.effect(
           for (const file of yield* ConfigPaths.files("opencode", ctx.directory, ctx.worktree).pipe(Effect.orDie)) {
             yield* merge(file, yield* loadFile(file, authEnv), "local")
           }
+          // bridle.json(c) merges after opencode.json(c) so the Bridle name wins when both exist
+          for (const file of yield* ConfigPaths.files("bridle", ctx.directory, ctx.worktree).pipe(Effect.orDie)) {
+            yield* merge(file, yield* loadFile(file, authEnv), "local")
+          }
         }
 
         result.agent = result.agent || {}
@@ -421,8 +425,8 @@ const layer = Layer.effect(
         const deps: Fiber.Fiber<void>[] = []
 
         for (const dir of directories) {
-          if (dir.endsWith(".opencode") || dir === Flag.OPENCODE_CONFIG_DIR) {
-            for (const file of ["opencode.json", "opencode.jsonc"]) {
+          if (dir.endsWith(".opencode") || dir.endsWith(".bridle") || dir === Flag.OPENCODE_CONFIG_DIR) {
+            for (const file of ["opencode.json", "opencode.jsonc", "bridle.json", "bridle.jsonc"]) {
               const source = path.join(dir, file)
               yield* Effect.logDebug(`loading config from ${source}`)
               yield* merge(source, yield* loadFile(source, authEnv))
@@ -514,7 +518,7 @@ const layer = Layer.effect(
 
         const managedDir = ConfigManaged.managedConfigDir()
         if (existsSync(managedDir)) {
-          for (const file of ["opencode.json", "opencode.jsonc"]) {
+          for (const file of ["opencode.json", "opencode.jsonc", "bridle.json", "bridle.jsonc"]) {
             const source = path.join(managedDir, file)
             yield* merge(source, yield* loadFile(source), "global")
           }
