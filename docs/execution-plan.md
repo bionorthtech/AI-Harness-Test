@@ -38,7 +38,7 @@ Goal: `opencode` → `bridle` everywhere it's safe, with the build green at each
 - ✅ **C1. Mode dial.** The four modes exist as native primary agents on the base's permission system: `plan` (existing) / `review` (new: edit+bash ask) / `auto-edit` (new: edits apply, bash asks) / `build` (existing permissive default = full-auto posture). Tab/Shift+Tab cycles them natively; user permission config overrides mode defaults. Verified via `bridle agent list`. *(Later: rename `build`→`full-auto`, model-side plan self-transition guard.)*
 - 🟦 **C2. Rules engine.** The base already evaluates allow/ask/deny glob rules per tool (verified in C1); remaining Bridle work is auditing the cross-scope merge semantics (managed→project→user) against architecture §6 and documenting them.
 - ✅ **C3. Shadow-git checkpoints + `bridle rewind`.** The base checkpoints agent edits as bare trees in a shadow git under Global data (never touching the project's `.git`). Added: a checkpoint journal in `track()` (trees have no commit log), `Snapshot.log()`, and a first-class `bridle rewind` command — no args lists checkpoints with ages, `rewind <hash>` restores. Verified end-to-end: edit → rewind → file restored, real `.git` untouched.
-- ⬜ **C4. Budgets.** Per-session token/$/wall-clock caps that stop the loop.
+- ✅ **C4. Budgets.** `budget: { max_cost, max_tokens }` config key (schema-validated, verified via `debug config`); enforced at step-finish in the session processor against DB session totals + the in-flight message, halting via the same `shouldBreak → blocked → "stop"` path the permission-deny flow uses. *(Wall-clock cap: follow-up.)*
 
 ## Phase D — Memory *(differentiator)*
 
