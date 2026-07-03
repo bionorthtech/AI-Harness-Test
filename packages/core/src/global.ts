@@ -1,5 +1,6 @@
 import path from "path"
 import fs from "fs/promises"
+import { existsSync } from "fs"
 import { xdgData, xdgCache, xdgConfig, xdgState } from "xdg-basedir"
 import os from "os"
 import { Context, Effect, Layer } from "effect"
@@ -7,12 +8,25 @@ import { Flock } from "./util/flock"
 import { Flag } from "./flag/flag"
 import { makeGlobalNode } from "./effect/app-node"
 
-const app = "opencode"
-const data = path.join(xdgData!, app)
-const cache = path.join(xdgCache!, app)
-const config = path.join(xdgConfig!, app)
-const state = path.join(xdgState!, app)
-const tmp = path.join(os.tmpdir(), app)
+const app = "bridle"
+const legacyApp = "opencode"
+
+// Prefer the bridle-named directory; fall back to an existing opencode one
+// so upgraded installs keep their config/data/state without migration.
+// Fresh installs (neither exists) get bridle-named directories.
+function appDir(base: string) {
+  const preferred = path.join(base, app)
+  if (existsSync(preferred)) return preferred
+  const legacy = path.join(base, legacyApp)
+  if (existsSync(legacy)) return legacy
+  return preferred
+}
+
+const data = appDir(xdgData!)
+const cache = appDir(xdgCache!)
+const config = appDir(xdgConfig!)
+const state = appDir(xdgState!)
+const tmp = appDir(os.tmpdir())
 
 const paths = {
   get home() {
