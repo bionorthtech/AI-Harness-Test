@@ -35,7 +35,7 @@ Goal: `opencode` → `bridle` everywhere it's safe, with the build green at each
 
 ## Phase C — Permissions & safety *(first differentiator)*
 
-- ⬜ **C1. Mode dial.** Map OpenCode's permission config to Bridle's four modes (`plan`/`review`/`auto-edit`/`full-auto`) with Shift+Tab cycling; `plan` cannot self-transition (architecture §6).
+- ✅ **C1. Mode dial.** The four modes exist as native primary agents on the base's permission system: `plan` (existing) / `review` (new: edit+bash ask) / `auto-edit` (new: edits apply, bash asks) / `build` (existing permissive default = full-auto posture). Tab/Shift+Tab cycles them natively; user permission config overrides mode defaults. Verified via `bridle agent list`. *(Later: rename `build`→`full-auto`, model-side plan self-transition guard.)*
 - ⬜ **C2. Rules engine.** `deny → ask → allow` glob rules, merged (not overridden) across config scopes.
 - ⬜ **C3. Shadow-git checkpoints.** Adopt/extend OpenCode's `snapshot` into checkpoint-after-every-mutation with `bridle rewind`, in a shadow git separate from the project's `.git` (architecture §6).
 - ⬜ **C4. Budgets.** Per-session token/$/wall-clock caps that stop the loop.
