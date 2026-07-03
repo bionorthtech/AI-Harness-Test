@@ -28,9 +28,9 @@ Goal: it builds, runs, and *looks* like Bridle; nothing renamed structurally yet
 
 Goal: `opencode` → `bridle` everywhere it's safe, with the build green at each step.
 
-- ⬜ **B1. Rename map.** Enumerate identifiers: the `opencode` CLI binary, the `.opencode/` config dir + `opencode.json`/`tui.json` schema URLs, package names (`packages/opencode` → `packages/bridle`), env vars (`OPENCODE_*`), the daemon name. Decide what stays for upstream-compat (schema `$schema` URLs point at opencode.ai — keep until we host our own).
-- ⬜ **B2. Config surface.** Support `bridle.json` / `.bridle/` as the primary config dir and `bridled` as the daemon, with `.opencode/` still read as a fallback during migration. Reconcile toward the JSON5 + scope-merge model (architecture §13).
-- ⬜ **B3. Binary + user-visible strings.** Rename the CLI entry to `bridle`; sweep user-facing strings (`/help`, welcome, status line) to Bridle. Leave internal module names for a later mechanical pass to keep diffs reviewable.
+- ✅ **B1. Rename map.** Surveyed: 1,153 files mention `opencode`. Strategy locked: surgical surface-first rename (CLI identity → config/env aliasing with fallbacks → internal identifiers last, as a mechanical pass); `$schema` URLs stay on opencode.ai until we host our own schemas.
+- ✅ **B2. Config surface (aliasing).** `bridle.json(c)` + `.bridle/` dirs discovered everywhere the opencode names are, bridle winning when both exist (verified functionally, 4 cases). Global XDG dirs (`~/.config`, data, cache, state, tmp) prefer `bridle/`, fall back to existing `opencode/` per-path (verified). All env flags readable as `BRIDLE_*` with `OPENCODE_*` fallback via the central Flag module (verified). *(Still open in B2: `bridled` daemon naming, JSON5 support — rides with the C-phase config work.)*
+- 🟦 **B3. Binary + user-visible strings.** CLI identity done: yargs scriptName is `bridle` and all command describes swept (verified in `--help`). Remaining: TUI welcome/home strings, `⦿` mascot placement, session-epilogue "Continue" hint, docs-URL strings.
 - ⬜ **B4. Status line.** Reshape the TUI footer to the design-system fields: `runtime · model · ⎇ branch · context-% · $cost · elapsed`, with the amber awaiting-permission dot (design-system §4.1).
 
 ## Phase C — Permissions & safety *(first differentiator)*
