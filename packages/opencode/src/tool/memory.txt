@@ -1,0 +1,15 @@
+Persistent memory that survives across sessions. Two files exist, each with a hard size cap:
+
+- core (4096 chars): durable facts about the project and how you should work — conventions, key commands, architecture notes, standing instructions.
+- user (2048 chars): durable facts about the user — preferences, style, recurring context.
+
+Both files are injected into your context at the start of every session, so keep them dense and current.
+
+Actions:
+- add: append a line/paragraph of text
+- replace: replace an exact existing substring (target) with new text
+- remove: delete an exact existing substring (target)
+
+Writes that would exceed the cap are REJECTED, not truncated. When that happens, consolidate: remove or rewrite stale entries first, then add. Prefer replacing outdated facts over accumulating.
+
+Only save durable, forward-useful facts. Never store secrets, tokens, or credentials.

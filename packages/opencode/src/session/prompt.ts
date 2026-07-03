@@ -8,6 +8,8 @@ import { MessageV2 } from "./message-v2"
 import { SessionRevert } from "./revert"
 import { Session } from "./session"
 import { Agent } from "../agent/agent"
+import { readMemory } from "../tool/memory"
+import { Global } from "@opencode-ai/core/global"
 import { Provider } from "@/provider/provider"
 
 import { type Tool as AITool, tool, jsonSchema } from "ai"
@@ -1260,9 +1262,16 @@ const layer = Layer.effect(
               sys.mcp(agent, session.permission),
               MessageV2.toModelMessagesEffect(msgs, model),
             ])
+            const memoryCore = readMemory(Global.Path.data, "core")
+            const memoryUser = readMemory(Global.Path.data, "user")
+            const memoryBlocks = [
+              ...(memoryCore ? [`<memory file="core">\n${memoryCore}</memory>`] : []),
+              ...(memoryUser ? [`<memory file="user">\n${memoryUser}</memory>`] : []),
+            ]
             const system = [
               ...env,
               ...instructions,
+              ...memoryBlocks,
               ...(mcpInstructions ? [mcpInstructions] : []),
               ...(skills ? [skills] : []),
             ]
