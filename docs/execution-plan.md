@@ -36,8 +36,8 @@ Goal: `opencode` → `bridle` everywhere it's safe, with the build green at each
 ## Phase C — Permissions & safety *(first differentiator)*
 
 - ✅ **C1. Mode dial.** The four modes exist as native primary agents on the base's permission system: `plan` (existing) / `review` (new: edit+bash ask) / `auto-edit` (new: edits apply, bash asks) / `build` (existing permissive default = full-auto posture). Tab/Shift+Tab cycles them natively; user permission config overrides mode defaults. Verified via `bridle agent list`. *(Later: rename `build`→`full-auto`, model-side plan self-transition guard.)*
-- ⬜ **C2. Rules engine.** `deny → ask → allow` glob rules, merged (not overridden) across config scopes.
-- ⬜ **C3. Shadow-git checkpoints.** Adopt/extend OpenCode's `snapshot` into checkpoint-after-every-mutation with `bridle rewind`, in a shadow git separate from the project's `.git` (architecture §6).
+- 🟦 **C2. Rules engine.** The base already evaluates allow/ask/deny glob rules per tool (verified in C1); remaining Bridle work is auditing the cross-scope merge semantics (managed→project→user) against architecture §6 and documenting them.
+- ✅ **C3. Shadow-git checkpoints + `bridle rewind`.** The base checkpoints agent edits as bare trees in a shadow git under Global data (never touching the project's `.git`). Added: a checkpoint journal in `track()` (trees have no commit log), `Snapshot.log()`, and a first-class `bridle rewind` command — no args lists checkpoints with ages, `rewind <hash>` restores. Verified end-to-end: edit → rewind → file restored, real `.git` untouched.
 - ⬜ **C4. Budgets.** Per-session token/$/wall-clock caps that stop the loop.
 
 ## Phase D — Memory *(differentiator)*
