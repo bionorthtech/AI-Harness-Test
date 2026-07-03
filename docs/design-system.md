@@ -14,6 +14,19 @@ A bridle is **worked leather and steel hardware** — something a craftsperson m
 
 The look is **dark-first** (the terminal is home), **mono-forward** (the tool speaks in the terminal's own voice), and **warm-neutral** (leather, not slate). It deliberately avoids the two current AI-tool clichés — warm-cream-with-terracotta, and near-black-with-one-acid-pop — by pairing a *warm* dark ground with a *cool* accent, which almost nobody does.
 
+### 0.1 Anti-slop rules (non-negotiable)
+
+The fastest way to make a tool look AI-generated is to reach for the effects everyone else does. Bridle bans them outright:
+
+- **No glows.** No coloured drop-shadows, no `text-shadow`, no `box-shadow` used to make an element "float" or emit light. Depth comes from surface layering and 1px borders, never from a halo.
+- **No decorative gradients.** No gradient fills on backgrounds, heroes, meters, or text. A meter is one solid colour that *changes* colour by state (steel → warning), it does not fade between them. The only gradients permitted anywhere are functional data encodings inside a chart, and even those are avoided when a solid will do.
+- **No blur / glassmorphism.** No `backdrop-filter`, no frosted panels.
+- **No emoji as UI.** Icons are the line set (§5); emoji never stand in for state or action.
+- **No purple-to-blue, no acid pop, no giant centered hero.** Restraint reads as craft.
+- **No motion that performs** (§6). Motion confirms state; it never decorates.
+
+If a treatment's only job is to look impressive, it doesn't ship. Everything on screen earns its place by carrying information.
+
 ---
 
 ## 1. Color
@@ -108,14 +121,19 @@ A minimal, geometric **bit-and-strap** glyph — two short vertical leather stra
 
 ### 4.1 The TUI (flagship surface)
 
-The terminal UI is the product's face. Anatomy, top to bottom:
+**The TUI is Claude Code's proven layout, re-skinned — not a reinvention.** Claude Code's terminal anatomy is the most battle-tested agent TUI in the world; we adopt its structure wholesale and change only what makes it *ours*: the colour (steel-on-leather instead of orange-on-black) and the mascot (the Bridle bit-ring `⦿` instead of the sparkle `✻`). A Claude Code user should feel instantly at home; a Bridle user should never mistake a screenshot for anything else. Anatomy, top to bottom, mirroring Claude Code element-for-element:
 
-- **Header rail** — mark + session name + model slot + runtime badge (`host` / `container` / `remote`) + mode pill. One line, `text-faint` except the active mode.
-- **Transcript** — the scrollable body. User turns flush-left with a steel caret `▍`; agent turns unmarked (the default voice); tool calls in a collapsed `surface` block with a mono label header (`● fs.edit  src/app.ts`) that expands to show args/output; observations framed distinctly (tenet #2 — you can always *see* that content came from a tool, not a person).
-- **Inline diff** — additions on a `success`-tinted gutter, deletions on `danger`-tinted, both at low tint over `surface`; a right-aligned `[a]ccept  [r]eject  [e]dit` affordance. Diffs are first-class UI, not dumped text.
-- **Permission prompt** — a `surface-raised` card with a `warning` left-edge, the exact action in mono, and `deny → ask → allow` context; keyboard-first (`y`/`n`/`a`).
-- **Subagent tree** — a live indented tree (Hermes) showing spawned children and their current tool call, each a dim branch off the parent.
-- **Status line** — always-on footer: mode · runtime · model · token/budget meter (a thin bar that shifts toward `warning` as it fills) · elapsed. `tabular-nums` throughout.
+- **Welcome box** — a rounded 1px-bordered box on session start: `⦿ Welcome to bridle`, a `/help` hint line, and `cwd:` — exactly Claude Code's opening box, mascot and colour swapped.
+- **Transcript** — flush-left, no chrome. Assistant text and every tool call are marked with the `⏺` bullet (Claude Code's convention): the bullet is `text`-coloured for the assistant's own words and `steel` for a tool call. Tool calls read `⏺ Read(src/auth/refresh.ts)`; their results indent under a `⎿` turnstile in `faint` (`⎿  Read 84 lines`). Observations are visibly framed as tool output, never as a person's words (tenet #2).
+- **Inline diff** — under an `⏺ Update(file)` call, Claude Code's diff format: a `⎿ Updated … with N additions and M removals` summary, then numbered lines — deletions `12 -` on a `danger` low-tint with `danger` text, additions `12 +` on a `success` low-tint with `success` text. Line numbers in `faint`, `tabular-nums`.
+- **Permission prompt** — Claude Code's numbered box, restyled: a rounded card with a `warning` left-edge, the exact action in mono, then `❯ 1. Yes` / `2. Yes, and don't ask again for <pattern>` / `3. No, tell bridle what to do (esc)`. Keyboard-first; the `❯` cursor and selected number are `steel`.
+- **Thinking indicator** — Claude Code's animated-gerund line, themed to the tack room: `⦿ Cinching… (4s · ↑ 1.2k tokens · esc to interrupt)`. The mascot does a slow single-glyph pulse (reduced-motion: static), never a spinner storm.
+- **Input box** — the bottom rounded-border box with a `> ` prompt and a steel caret `▍`, identical in structure to Claude Code's composer.
+- **Mode hint line** — directly under the input, Claude Code's `⏵⏵` affordance: `⏵⏵ full-auto · host  (shift+tab to cycle)` on the left in the mode's colour (full-auto in `warning`), `? for shortcuts` on the right in `faint`.
+- **Subagent tree** — a live indented tree (Hermes) of spawned children and their current tool call, each a dim branch off the parent.
+- **Status footer** — mode · runtime · model · token/budget meter (a thin bar that is solid `steel` and flips to solid `warning` past 80% — it never gradient-fades) · elapsed. `tabular-nums` throughout.
+
+The mascot `⦿` is the only glyph swap that matters: wherever Claude Code shows `✻`, Bridle shows the bit-ring. Everything else is a colour-token substitution over a layout users already trust.
 
 ### 4.2 Buttons & controls
 
@@ -133,7 +151,7 @@ The four permission modes render as a segmented control, the active segment fill
 
 ### 4.5 Cards, tables, code
 
-Cards: `surface` fill, 1px `border`, 10px radius, generous internal padding, no heavy shadow (a single soft `0 8px 24px -12px` at most). Tables: uppercase mono column heads on a `surface-raised` strip, hairline rows, `tabular-nums`, hover row-tint; wide tables scroll inside their own container. Code blocks: `bg`-dark even in light theme (code is always "terminal"), mono, generous line-height, a language chip top-right.
+Cards: `surface` fill, 1px `border`, 10px radius, generous internal padding, **no drop-shadow at all** — separation comes from the border and the surface-layer step (`bg` → `surface` → `surface-raised`), never a halo (§0.1). Tables: uppercase mono column heads on a `surface-raised` strip, hairline rows, `tabular-nums`, hover row-tint; wide tables scroll inside their own container. Code blocks: `bg`-dark even in light theme (code is always "terminal"), mono, generous line-height, a language chip top-right.
 
 ---
 
@@ -162,10 +180,20 @@ Terminal-plain. Controls say exactly what happens (`Apply`, then a toast `Applie
 
 ---
 
-## 8. Tokens (implementation)
+## 8. Continuity & adaptability
 
-Ship as CSS custom properties + a JSON token file consumed by the TUI renderer and the web console alike, so terminal and browser stay in lockstep. Theme = a swap of the token set; `bg`/`surface`/`text`/`steel`/semantics are the stable contract, everything else derives. The palette validates for WCAG AA on text pairs in both themes (steel-on-dark, text-on-surface, every semantic-on-its-tint).
+The system has one job beyond looking good: **be continuous across every surface and adapt to every context without breaking.**
+
+**One token contract, every surface.** Ship the palette and scale as CSS custom properties *and* a JSON token file, consumed by the TUI renderer, the web console, the IDE panes, and the docs site alike. `bg` / `surface` / `text` / `steel` / the semantics are the stable contract; everything else derives from them. A colour is defined once and every surface reads the same value, so the terminal, the Slack message, and the browser dashboard are visibly the same tool — not a family resemblance, the same identity.
+
+**Continuous, not sectioned-off.** Surfaces share the same ground, the same bullets (`⏺`/`⎿`), the same mascot, the same mode/runtime chips. Moving from the TUI to the web console should feel like scrolling, not switching apps. Layouts flow on a single spacing scale (a 4px base step) so nothing snaps between contexts.
+
+**Adaptable — themes.** A theme is a swap of the token set, nothing more. Dark ships first (the terminal is home); light is a full peer for docs, the console, and day-mode terminals. Both validate for **WCAG AA** on every text pair (steel-on-ground, text-on-surface, each semantic-on-its-tint). Adding a third theme (high-contrast, a user's brand) is a token file, never a rewrite.
+
+**Adaptable — size & density.** Type is set in relative units against a single scale; the whole UI scales with the user's terminal font size or browser zoom. Fixed-width terminal content (diffs, trees, tables) scrolls inside its own container so a narrow window never breaks the layout — it adapts by scrolling, not by reflowing box-drawing into nonsense. Grids collapse from multi-column to single-column at their natural breakpoints.
+
+**Adaptable — surface constraints.** The same design degrades gracefully: full colour + line icons in a truecolor terminal or browser; a 16-colour fallback map for basic terminals; plain-text framing (the `⏺`/`⎿`/`❯` glyphs) that still reads with no colour at all. The identity survives all the way down to a monochrome SSH session.
 
 ---
 
-*This system dresses every surface in §15 of the architecture — TUI, headless output, IDE panes, channel messages, and the web console — from one token contract, so Bridle looks like one tool everywhere it runs.*
+*This system dresses every surface in §15 of the architecture — TUI, headless output, IDE panes, channel messages, and the web console — from one token contract, so Bridle looks like one tool everywhere it runs, in every theme, at every size.*
