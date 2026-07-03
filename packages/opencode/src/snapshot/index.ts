@@ -3,6 +3,7 @@ import { Cause, Duration, Effect, Layer, Schedule, Schema, Semaphore, Context } 
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 import { formatPatch, structuredPatch } from "diff"
 import path from "path"
+import { appendFileSync, readFileSync } from "fs"
 import { AppProcess } from "@opencode-ai/core/process"
 import { InstanceState } from "@/effect/instance-state"
 import { FSUtil } from "@opencode-ai/core/fs-util"
@@ -42,6 +43,7 @@ export interface Interface {
   readonly revert: (patches: Patch[]) => Effect.Effect<void>
   readonly diff: (hash: string) => Effect.Effect<string>
   readonly diffFull: (from: string, to: string) => Effect.Effect<FileDiff[]>
+  readonly log: (limit?: number) => Effect.Effect<{ hash: string; timestamp: number }[]>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/Snapshot") {}
@@ -341,6 +343,14 @@ const layer: Layer.Layer<Service, never, FSUtil.Service | AppProcess.Service | C
               const result = yield* git(args(["write-tree"]), { cwd: state.directory })
               const hash = result.text.trim()
               yield* Effect.logInfo("tracking", { hash, cwd: state.directory, git: state.gitdir })
+              // journal the checkpoint so `bridle rewind` can list history
+              // (snapshots are bare trees, so there is no commit log to read)
+              if (hash)
+                yield* Effect.sync(() => {
+                  try {
+                    appendFileSync(path.join(state.gitdir, "checkpoints.log"), `${hash} ${Date.now()}\n`)
+                  } catch {}
+                })
               return hash
             }),
           )
@@ -765,7 +775,33 @@ const layer: Layer.Layer<Service, never, FSUtil.Service | AppProcess.Service | C
           Effect.forkScoped,
         )
 
-        return { cleanup, track, patch, restore, revert, diff, diffFull }
+        const log = Effect.fnUntraced(function* (limit: number = 20) {
+          const text = yield* Effect.sync(() => {
+            try {
+              return readFileSync(path.join(state.gitdir, "checkpoints.log"), "utf8")
+            } catch {
+              return ""
+            }
+          })
+          const entries = text
+            .trim()
+            .split("\n")
+            .filter(Boolean)
+            .flatMap((line) => {
+              const [hash, ts] = line.split(" ")
+              if (!hash || !ts) return []
+              return [{ hash, timestamp: Number(ts) }]
+            })
+          // dedupe consecutive identical trees (unchanged worktree), newest first
+          const seen: { hash: string; timestamp: number }[] = []
+          for (const entry of entries.toReversed()) {
+            if (seen.at(-1)?.hash === entry.hash) continue
+            seen.push(entry)
+          }
+          return seen.slice(0, limit)
+        })
+
+        return { cleanup, track, patch, restore, revert, diff, diffFull, log }
       }),
     )
 
@@ -793,6 +829,9 @@ const layer: Layer.Layer<Service, never, FSUtil.Service | AppProcess.Service | C
       }),
       diffFull: Effect.fn("Snapshot.diffFull")(function* (from: string, to: string) {
         return yield* InstanceState.useEffect(state, (s) => s.diffFull(from, to))
+      }),
+      log: Effect.fn("Snapshot.log")(function* (limit?: number) {
+        return yield* InstanceState.useEffect(state, (s) => s.log(limit))
       }),
     })
   }),
