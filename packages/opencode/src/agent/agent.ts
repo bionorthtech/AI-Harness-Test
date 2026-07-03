@@ -153,6 +153,39 @@ const layer = Layer.effect(
             mode: "primary",
             native: true,
           },
+          review: {
+            name: "review",
+            description: "Review mode. Edits and shell commands ask for approval before running.",
+            options: {},
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+                edit: { "*": "ask" },
+                bash: { "*": "ask" },
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
+          "auto-edit": {
+            name: "auto-edit",
+            description: "Auto-edit mode. Edits apply directly; shell commands still ask.",
+            options: {},
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+                bash: { "*": "ask" },
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
           plan: {
             name: "plan",
             description: "Plan mode. Disallows all edit tools.",
