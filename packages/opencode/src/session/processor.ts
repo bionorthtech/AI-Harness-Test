@@ -441,6 +441,33 @@ const layer = Layer.effect(
             ctx.assistantMessage.finish = value.reason
             ctx.assistantMessage.cost += usage.cost
             ctx.assistantMessage.tokens = usage.tokens
+
+            // Budget caps (per session): halt the loop once cost/token totals cross the configured limit.
+            {
+              const budget = (yield* config.get()).budget
+              if (budget?.max_cost !== undefined || budget?.max_tokens !== undefined) {
+                const totals = yield* session.get(ctx.sessionID).pipe(Effect.orElseSucceed(() => undefined))
+                const totalCost = (totals?.cost ?? 0) + ctx.assistantMessage.cost
+                const totalTokens =
+                  (totals?.tokens?.input ?? 0) +
+                  (totals?.tokens?.output ?? 0) +
+                  usage.tokens.input +
+                  usage.tokens.output
+                const over =
+                  budget.max_cost !== undefined && totalCost >= budget.max_cost
+                    ? `cost budget reached ($${totalCost.toFixed(2)} of $${budget.max_cost})`
+                    : budget.max_tokens !== undefined && totalTokens >= budget.max_tokens
+                      ? `token budget reached (${totalTokens} of ${budget.max_tokens})`
+                      : undefined
+                if (over) {
+                  ctx.shouldBreak = true
+                  yield* Effect.logWarning("session budget reached — halting loop", {
+                    sessionID: ctx.sessionID,
+                    reason: over,
+                  })
+                }
+              }
+            }
             yield* session.updatePart({
               id: PartID.ascending(),
               reason: value.reason,
