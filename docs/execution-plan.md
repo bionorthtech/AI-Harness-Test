@@ -54,7 +54,7 @@ Goal: `opencode` → `bridle` everywhere it's safe, with the build green at each
 ## Phase F — Trust-tiered marketplace *(the headline differentiator)*
 
 - ⬜ **F1. Signing + trust tiers** (builtin/official/verified/community); nothing unsigned installs.
-- ⬜ **F2. Static scanning + sandboxed skill scripts + quarantine** (architecture §9). This is the ClawHavoc-proofing; it gates any public registry.
+- 🟦 **F2. Static scanning + sandboxed skill scripts + quarantine** (architecture §9). Done: `SkillScan.scan` — flags prompt-injection / exfiltration / destructive / obfuscation patterns into a clean/suspicious/dangerous verdict with evidence, surfaced as `bridle skill scan <file|dir>` (exits 1 on dangerous, CI-friendly), 8 tests + live-verified. Remaining: auto-scan on skill install/load with a block-on-dangerous gate, sandboxed skill scripts, quarantine flow.
 
 ## Cross-cutting
 
